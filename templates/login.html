@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Login - FlowPay{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo-wrapper" style="border: 2px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow);">
+                <img src="{{ url_for('static', filename='images/flowpay_logo.png') }}" alt="FlowPay Logo" class="login-logo-img">
+            </div>
+            <h2>Flow<span style="color: var(--primary);">Pay</span></h2>
+            <p style="color: var(--primary); font-weight: 700;">Secure Offline UPI Payment System</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('login') }}" method="POST" class="login-form">
+            <div class="form-group">
+                <label for="pin">Enter 4-Digit Security PIN</label>
+                <div class="pin-input-group">
+                    <input type="password" id="pin" name="pin" maxlength="4" placeholder="••••" required autofocus class="form-control pin-input-lg" style="border-color: var(--primary);">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100" style="background: var(--primary-dark); border: 1px solid var(--primary);">
+                <i class="fa-solid fa-unlock-keyhole" style="color: var(--primary);"></i> Unlock FlowPay
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <p><i class="fa-solid fa-circle-info"></i> Demo Passcode: <strong>1234</strong></p>
+            <div class="feature-pills">
+                <span><i class="fa-solid fa-wifi-slash"></i> Offline Ready</span>
+                <span><i class="fa-solid fa-shield-halved"></i> FlowPay Security Token</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

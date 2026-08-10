@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Send Money - FlowPay{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <a href="{{ url_for('index') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Make Payment</h2>
+    </div>
+
+    <!-- Status Notice Header (Online vs Offline) -->
+    <div class="status-notice-card {% if user.is_online %}notice-online{% else %}notice-offline{% endif %} mb-4">
+        <div class="notice-icon">
+            <i class="fa-solid {% if user.is_online %}fa-wifi{% else %}fa-plane-slash{% endif %}"></i>
+        </div>
+        <div class="notice-content">
+            <h4>{% if user.is_online %}Online Mode Enabled{% else %}Offline Payment Mode Active{% endif %}</h4>
+            <p>
+                {% if user.is_online %}
+                Payments will settle immediately with instant online confirmation.
+                {% else %}
+                Payments up to ₹2,000 will be cryptographically signed and stored in your offline sync queue.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Receiver Quick Select Contacts -->
+    <div class="section-title">
+        <h3>Frequent Receivers</h3>
+    </div>
+    <div class="contacts-scroll mb-4">
+        <div class="contact-card" onclick="fillRecipient('Starbucks Coffee', 'starbucks@upi')">
+            <div class="avatar avatar-sm">S</div>
+            <span>Starbucks</span>
+        </div>
+        <div class="contact-card" onclick="fillRecipient('Karan Sharma (Taxi)', 'karan.sharma@okaxis')">
+            <div class="avatar avatar-sm">K</div>
+            <span>Karan Taxi</span>
+        </div>
+        <div class="contact-card" onclick="fillRecipient('Supermarket Store', 'groceries@ybl')">
+            <div class="avatar avatar-sm">M</div>
+            <span>Supermarket</span>
+        </div>
+        <div class="contact-card" onclick="fillRecipient('Rohan Verma', 'rohan@upiflow')">
+            <div class="avatar avatar-sm">R</div>
+            <span>Rohan V.</span>
+        </div>
+    </div>
+
+    <!-- Main Payment Form Card -->
+    <div class="card form-card">
+        <form id="payment-form">
+            <div class="form-group mb-3">
+                <label for="receiver-name">Recipient / Merchant Name</label>
+                <input type="text" id="receiver-name" placeholder="e.g. Cafe Coffee Day" required class="form-control">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="receiver-upi">UPI ID / Phone Number</label>
+                <input type="text" id="receiver-upi" placeholder="merchant@upi" required class="form-control">
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="pay-amount">Amount (₹)</label>
+                <div class="currency-input-wrapper">
+                    <span class="prefix">₹</span>
+                    <input type="number" id="pay-amount" min="1" max="10000" placeholder="150" required class="form-control lg-input">
+                </div>
+                {% if not user.is_online %}
+                <small class="text-warning mt-1 d-block">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Max single offline transaction limit is ₹2,000.
+                </small>
+                {% endif %}
+            </div>
+
+            <button type="button" onclick="initiatePaymentModal()" class="btn btn-primary btn-lg w-100">
+                <i class="fa-solid fa-paper-plane"></i> Proceed to Pay
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

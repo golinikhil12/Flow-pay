@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     FLOWPAY BASE HTML TEMPLATE (base.html)
+     Common Layout Container: Header, Top Status Bar, Toast Banner, 
+     Main Content Area, Bottom Navigation Bar, and Interactive Modals.
+========================================================================= -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FlowPay - NextGen Offline Payments{% endblock %}</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Vanilla CSS Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% if user and user.is_low_battery %}low-battery-mode{% endif %}">
+
+    <!-- Mobile Mobile App Shell Wrapper -->
+    <div class="app-shell">
+        
+        <!-- 1. Top Header Bar (Brand Logo & Online/Battery Simulator Controls) -->
+        <header class="top-bar">
+            <div class="brand">
+                <a href="{{ url_for('index') }}" class="logo-link">
+                    <img src="{{ url_for('static', filename='images/flowpay_logo.png') }}" alt="FlowPay Logo" class="brand-logo-img">
+                    <span class="logo-text">Flow<span class="accent">Pay</span></span>
+                </a>
+            </div>
+
+            {% if user %}
+            <!-- Interactive Simulator Buttons (Online/Offline Mode & Power Mode) -->
+            <div class="status-controls">
+                <button id="toggle-network-btn" class="status-pill {% if user.is_online %}online{% else %}offline{% endif %}" onclick="toggleNetwork()" title="Click to toggle Network simulation">
+                    <i class="fa-solid {% if user.is_online %}fa-wifi{% else %}fa-plane{% endif %}"></i>
+                    <span>{% if user.is_online %}Online{% else %}Offline Mode{% endif %}</span>
+                </button>
+
+                <button id="toggle-battery-btn" class="status-pill {% if user.is_low_battery %}battery-low{% else %}battery-ok{% endif %}" onclick="toggleBattery()" title="Click to toggle Low Power mode simulation">
+                    <i class="fa-solid {% if user.is_low_battery %}fa-battery-quarter{% else %}fa-battery-full{% endif %}"></i>
+                    <span>{% if user.is_low_battery %}12% Power{% else %}Power Normal{% endif %}</span>
+                </button>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- 2. Live Toast Banner Notification Container -->
+        <div id="toast-banner" class="toast-banner hidden">
+            <div class="toast-content">
+                <i id="toast-icon" class="fa-solid fa-circle-info"></i>
+                <div class="toast-text">
+                    <strong id="toast-title">Notification</strong>
+                    <span id="toast-msg">System status update...</span>
+                </div>
+            </div>
+            <button class="toast-close" onclick="closeToast()">&times;</button>
+        </div>
+
+        <!-- 3. Dynamic Page Content Block (Injected by child templates) -->
+        <main class="content-area">
+            {% block content %}{% endblock %}
+        </main>
+
+        {% if user %}
+        <!-- 4. Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('pay') }}" class="nav-item {% if request.endpoint == 'pay' %}active{% endif %}">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Pay</span>
+            </a>
+            <a href="{{ url_for('wallet') }}" class="nav-item {% if request.endpoint == 'wallet' %}active{% endif %}">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Wallet</span>
+            </a>
+            <a href="{{ url_for('history') }}" class="nav-item {% if request.endpoint == 'history' %}active{% endif %}">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>History</span>
+            </a>
+            <a href="{{ url_for('profile') }}" class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <!-- 5. Floating System Terminal Log Toggle Button -->
+        <div class="log-trigger">
+            <button class="btn-log-toggle" onclick="openLogsModal()">
+                <i class="fa-solid fa-terminal"></i> Activity Log
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 6. Real-time Activity Terminal Logs Modal -->
+    <div id="logs-modal" class="modal hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-terminal"></i> FlowPay Execution Logs</h3>
+                <button class="close-btn" onclick="closeLogsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="log-terminal-box" class="terminal-box">
+                    <p class="log-line text-muted">Loading system activity logs...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Global 4-Digit Security PIN Modal -->
+    <div id="pin-modal" class="modal hidden">
+        <div class="modal-card mini-card">
+            <div class="modal-header">
+                <h3>Enter 4-Digit Security PIN</h3>
+                <button class="close-btn" onclick="closePinModal()">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="text-secondary mb-3">Default PIN: <strong>1234</strong></p>
+                <div class="pin-display">
+                    <input type="password" id="pin-input" maxlength="4" placeholder="••••" autocomplete="off" class="pin-field" autofocus>
+                </div>
+                <div id="pin-error-msg" class="error-msg hidden"></div>
+                <button id="pin-confirm-btn" class="btn btn-primary w-100 mt-3">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Client-Side JavaScript Controller -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

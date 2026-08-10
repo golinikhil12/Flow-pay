@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Synchronize Offline Payments - FlowPay{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <a href="{{ url_for('index') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Offline Sync Center</h2>
+    </div>
+
+    <!-- Sync Overview Header -->
+    <div class="sync-hero-card mb-4">
+        <div class="sync-icon-glow">
+            <i class="fa-solid fa-rotate"></i>
+        </div>
+        <h3>Pending Offline Transactions</h3>
+        <p class="mb-2">These transactions were processed securely while offline and are waiting to upload to the server.</p>
+
+        <div class="pending-stat-badge mt-2">
+            <span class="count-num">{{ pending_transactions|length }}</span> Pending Upload(s)
+        </div>
+    </div>
+
+    {% if pending_transactions %}
+    <!-- Sync Progress Box (Hidden initially until Sync button clicked) -->
+    <div id="sync-progress-box" class="sync-progress-box hidden mb-4">
+        <div class="progress-bar-track">
+            <div id="sync-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+        <p id="sync-status-text" class="text-muted mt-2 text-center">Connecting to server node...</p>
+    </div>
+
+    <!-- List of Pending Offline Payments -->
+    <div class="section-title">
+        <h3>Queue Items</h3>
+    </div>
+    <div class="transactions-list mb-4">
+        {% for t in pending_transactions %}
+        <div class="transaction-item">
+            <div class="tx-icon tx-offline">
+                <i class="fa-solid fa-wifi-slash"></i>
+            </div>
+            <div class="tx-details">
+                <div class="tx-title">{{ t.receiver_name }}</div>
+                <div class="tx-sub">{{ t.date }} • {{ t.time }}</div>
+            </div>
+            <div class="tx-amount-col">
+                <div class="tx-amount tx-minus">-₹{{ "%.2f"|format(t.amount) }}</div>
+                <span class="status-tag tag-pending"><i class="fa-solid fa-clock"></i> Pending Sync</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button id="start-sync-btn" onclick="startSyncProcess()" class="btn btn-warning btn-lg w-100 mb-4">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Synchronize All Transactions Now
+    </button>
+    {% else %}
+    <div class="empty-state card">
+        <i class="fa-solid fa-circle-check icon-success"></i>
+        <h3>All Caught Up!</h3>
+        <p>There are no pending offline transactions. Everything is fully synchronized with the server.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Back to Dashboard</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

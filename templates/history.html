@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction History - FlowPay{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <a href="{{ url_for('index') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Transaction History</h2>
+    </div>
+
+    <!-- Status Filter Buttons -->
+    <div class="filter-pills-row mb-4">
+        <button class="filter-btn active" onclick="filterTransactions('all')">All</button>
+        <button class="filter-btn" onclick="filterTransactions('synced')">Synced</button>
+        <button class="filter-btn" onclick="filterTransactions('pending')">Pending Sync</button>
+    </div>
+
+    <!-- Transactions List Container -->
+    <div class="transactions-list" id="history-list">
+        {% if transactions %}
+            {% for t in transactions %}
+            <div class="transaction-item history-item" data-status="{{ t.status.lower().replace(' ', '-') }}">
+                <div class="tx-icon {% if t.is_offline %}tx-offline{% else %}tx-online{% endif %}">
+                    <i class="fa-solid {% if t.receiver_name == 'Loaded to Wallet' %}fa-arrow-down-left{% elif t.receiver_name == 'Withdrawn to Bank Account' %}fa-arrow-up-right{% else %}fa-paper-plane{% endif %}"></i>
+                </div>
+                <div class="tx-details">
+                    <div class="tx-title">{{ t.receiver_name }}</div>
+                    <div class="tx-upi">{{ t.receiver_upi }}</div>
+                    <div class="tx-sub">{{ t.date }} • {{ t.time }}</div>
+                </div>
+                <div class="tx-amount-col">
+                    <div class="tx-amount {% if 'Loaded' in t.receiver_name %}tx-plus{% else %}tx-minus{% endif %}">
+                        {% if 'Loaded' in t.receiver_name %}+{% else %}-{% endif %}₹{{ "%.2f"|format(t.amount) }}
+                    </div>
+                    <span class="status-tag {% if t.status == 'Synced' %}tag-synced{% else %}tag-pending{% endif %}">
+                        <i class="fa-solid {% if t.status == 'Synced' %}fa-check-double{% else %}fa-clock{% endif %}"></i>
+                        {{ t.status }}
+                    </span>
+                    <div class="tx-id">ID: {{ t.id }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-receipt icon-empty"></i>
+                <p>No transaction history found.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

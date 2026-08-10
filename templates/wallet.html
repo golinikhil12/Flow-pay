@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Wallet - FlowPay{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <a href="{{ url_for('index') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Wallet Balance</h2>
+    </div>
+
+    <!-- Current Balance Banner -->
+    <div class="balance-card gradient-primary mb-4">
+        <span class="card-label">Available Wallet Balance</span>
+        <div class="balance-amount">
+            <span class="currency">₹</span>{{ "%.2f"|format(user.balance) }}
+        </div>
+        <div class="bank-sub-info">
+            <i class="fa-solid fa-building-columns"></i> {{ user.bank_name }} ({{ user.account_number[-4:] }})
+        </div>
+    </div>
+
+    <!-- Add Money Form Card -->
+    <div class="card form-card mb-4">
+        <div class="card-title">
+            <i class="fa-solid fa-circle-plus text-primary"></i>
+            <h3>Load Money into Wallet</h3>
+        </div>
+
+        <form id="add-money-form" class="mt-3">
+            <div class="form-group">
+                <label for="add-amount">Enter Amount (₹)</label>
+                <div class="currency-input-wrapper">
+                    <span class="prefix">₹</span>
+                    <input type="number" id="add-amount" min="1" step="1" placeholder="500" required class="form-control lg-input">
+                </div>
+            </div>
+
+            <!-- Quick Amount Chips -->
+            <div class="quick-chip-row">
+                <button type="button" class="chip-btn" onclick="setAddAmount(100)">+ ₹100</button>
+                <button type="button" class="chip-btn" onclick="setAddAmount(500)">+ ₹500</button>
+                <button type="button" class="chip-btn" onclick="setAddAmount(1000)">+ ₹1,000</button>
+                <button type="button" class="chip-btn" onclick="setAddAmount(2000)">+ ₹2,000</button>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">
+                <i class="fa-solid fa-plus-circle"></i> Add Money Now
+            </button>
+        </form>
+    </div>
+
+    <!-- Withdraw Money Card -->
+    <div class="card form-card">
+        <div class="card-title">
+            <i class="fa-solid fa-arrow-right-from-bracket text-warning"></i>
+            <h3>Withdraw to Bank Account</h3>
+        </div>
+
+        <form id="withdraw-money-form" class="mt-3">
+            <div class="form-group">
+                <label for="withdraw-amount">Amount to Transfer to {{ user.bank_name }}</label>
+                <div class="currency-input-wrapper">
+                    <span class="prefix">₹</span>
+                    <input type="number" id="withdraw-amount" min="1" max="{{ user.balance }}" step="1" placeholder="200" required class="form-control lg-input">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-secondary w-100 mt-3">
+                <i class="fa-solid fa-building-columns"></i> Withdraw to Bank
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

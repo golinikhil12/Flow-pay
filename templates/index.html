@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FlowPay UPI{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- User Welcome Greeting Header -->
+    <div class="welcome-header">
+        <div class="user-info">
+            <div class="avatar" style="background: linear-gradient(135deg, #00BAF2, #002970); color: #fff;">
+                <span>{{ user.name[0] }}</span>
+            </div>
+            <div>
+                <h2 class="user-greeting">Hi {{ user.name.split()[0] }}! 👋</h2>
+                <span class="user-upi">{{ user.upi_id }} • <strong style="color: var(--primary);">FlowPay UPI</strong></span>
+            </div>
+        </div>
+        <a href="{{ url_for('settings') }}" class="btn-icon" title="Settings">
+            <i class="fa-solid fa-gear"></i>
+        </a>
+    </div>
+
+    <!-- FlowPay Style UPI Money Transfer Section -->
+    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>UPI Money Transfer</h3>
+        <span style="font-size: 0.75rem; color: var(--primary); font-weight: 700;">FlowPay UPI</span>
+    </div>
+    
+    <div class="quick-actions-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+        <a href="{{ url_for('pay') }}" class="action-tile">
+            <div class="tile-icon" style="background: rgba(0, 186, 242, 0.15); color: #00BAF2;"><i class="fa-solid fa-mobile-screen"></i></div>
+            <span>To Mobile</span>
+        </a>
+        <a href="{{ url_for('pay') }}" class="action-tile">
+            <div class="tile-icon" style="background: rgba(0, 185, 112, 0.15); color: #00B970;"><i class="fa-solid fa-building-columns"></i></div>
+            <span>To Bank A/c</span>
+        </a>
+        <a href="{{ url_for('wallet') }}" class="action-tile">
+            <div class="tile-icon" style="background: rgba(139, 92, 246, 0.15); color: #8B5CF6;"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            <span>To Self A/c</span>
+        </a>
+        <a href="{{ url_for('history') }}" class="action-tile">
+            <div class="tile-icon" style="background: rgba(255, 180, 0, 0.15); color: #FFB400;"><i class="fa-solid fa-wallet"></i></div>
+            <span>Check Balance</span>
+        </a>
+    </div>
+
+    <!-- Main Balance Card & Offline Limit Card -->
+    <div class="cards-grid">
+        <!-- Balance Card -->
+        <div class="balance-card" style="background: linear-gradient(135deg, #002970 0%, #00BAF2 100%); border-color: rgba(0, 186, 242, 0.4);">
+            <div class="card-top">
+                <span class="card-label" style="color: rgba(255,255,255,0.9); font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> FlowPay Bank Account</span>
+                <span class="badge {% if user.is_online %}badge-success{% else %}badge-warning{% endif %}">
+                    {% if user.is_online %}Online Active{% else %}Offline Sync Queue{% endif %}
+                </span>
+            </div>
+            <div class="balance-amount">
+                <span class="currency">₹</span>{{ "%.2f"|format(user.balance) }}
+            </div>
+            <div class="card-actions">
+                <a href="{{ url_for('wallet') }}" class="btn btn-sm btn-light">
+                    <i class="fa-solid fa-plus"></i> Load Balance
+                </a>
+                <a href="{{ url_for('pay') }}" class="btn btn-sm btn-light-outline">
+                    <i class="fa-solid fa-paper-plane"></i> Send Money
+                </a>
+            </div>
+        </div>
+
+        <!-- Offline Payment Capacity Card -->
+        <div class="balance-card gradient-secondary">
+            <div class="card-top">
+                <span class="card-label"><i class="fa-solid fa-wifi-slash"></i> Offline Payment Limit</span>
+                <span class="badge badge-info">₹2,000 / Txn Limit</span>
+            </div>
+            <div class="balance-amount">
+                <span class="currency">₹</span>{{ "%.2f"|format(user.offline_limit_remaining) }}
+                <span class="sub-text">of ₹{{ "%.0f"|format(user.offline_limit) }}</span>
+            </div>
+            <div class="card-actions">
+                {% if pending_count > 0 %}
+                <a href="{{ url_for('sync') }}" class="btn btn-sm btn-warning blink-effect">
+                    <i class="fa-solid fa-rotate"></i> Sync {{ pending_count }} Pending
+                </a>
+                {% else %}
+                <a href="{{ url_for('pay') }}" class="btn btn-sm btn-light-outline">
+                    <i class="fa-solid fa-bolt"></i> Pay Offline
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- FlowPay Soundbox Voice Alert Simulator -->
+    <div class="card mb-4" style="background: rgba(11, 25, 54, 0.9); border: 1px solid var(--primary-glow); padding: 14px 18px; border-radius: var(--radius-md);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(0, 186, 242, 0.2); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                    <i class="fa-solid fa-volume-high"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 0.9rem; font-weight: 700; margin: 0;">FlowPay Soundbox Voice Alerts</h4>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary);">Real-time audio notification active</span>
+                </div>
+            </div>
+            <span class="badge badge-success">ACTIVE</span>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Widget -->
+    <div class="section-header mt-4">
+        <h3>Recent Transactions</h3>
+        <a href="{{ url_for('history') }}" class="see-all">See All <i class="fa-solid fa-chevron-right"></i></a>
+    </div>
+
+    <div class="transactions-list">
+        {% if transactions %}
+            {% for t in transactions %}
+            <div class="transaction-item">
+                <div class="tx-icon {% if t.is_offline %}tx-offline{% else %}tx-online{% endif %}">
+                    <i class="fa-solid {% if t.receiver_name == 'Loaded to Wallet' %}fa-arrow-down-left{% elif t.receiver_name == 'Withdrawn to Bank Account' %}fa-arrow-up-right{% else %}fa-paper-plane{% endif %}"></i>
+                </div>
+                <div class="tx-details">
+                    <div class="tx-title">{{ t.receiver_name }}</div>
+                    <div class="tx-sub">{{ t.date }} • {{ t.time }}</div>
+                </div>
+                <div class="tx-amount-col">
+                    <div class="tx-amount {% if 'Loaded' in t.receiver_name %}tx-plus{% else %}tx-minus{% endif %}">
+                        {% if 'Loaded' in t.receiver_name %}+{% else %}-{% endif %}₹{{ "%.2f"|format(t.amount) }}
+                    </div>
+                    <span class="status-tag {% if t.status == 'Synced' %}tag-synced{% else %}tag-pending{% endif %}">
+                        <i class="fa-solid {% if t.status == 'Synced' %}fa-check-double{% else %}fa-clock{% endif %}"></i>
+                        {{ t.status }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-receipt icon-empty"></i>
+                <p>No transactions yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
