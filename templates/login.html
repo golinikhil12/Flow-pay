@@ -19,11 +19,27 @@
         </div>
         {% endif %}
 
+        <div class="showcase-banner" style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--primary); color: #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 18px; text-align: center; font-size: 0.9rem;">
+            <i class="fa-solid fa-rocket" style="color: var(--primary); margin-right: 4px;"></i>
+            <strong>FlowPay Live Showcase Mode</strong>
+        </div>
+
+        <!-- 1-Click Instant Demo Button -->
+        <a href="{{ url_for('login', demo='true') }}" class="btn btn-primary btn-lg w-100" style="background: linear-gradient(135deg, #00f0ff, #7000ff); border: none; color: #050b14; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-shadow: 0 0 20px rgba(0,240,255,0.4); margin-bottom: 20px; padding: 12px 16px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
+            <i class="fa-solid fa-bolt" style="font-size: 1.1rem; color: #050b14;"></i> Launch Showcase Demo (1-Click)
+        </a>
+
+        <div class="divider" style="display: flex; align-items: center; text-align: center; margin-bottom: 18px; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+            <span style="flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1);"></span>
+            <span style="padding: 0 10px;">or enter pin</span>
+            <span style="flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1);"></span>
+        </div>
+
         <form action="{{ url_for('login') }}" method="POST" class="login-form">
             <div class="form-group">
                 <label for="pin">Enter 4-Digit Security PIN</label>
                 <div class="pin-input-group">
-                    <input type="password" id="pin" name="pin" maxlength="4" placeholder="••••" required autofocus class="form-control pin-input-lg" style="border-color: var(--primary);">
+                    <input type="password" id="pin" name="pin" value="1234" maxlength="4" placeholder="••••" required autofocus class="form-control pin-input-lg" style="border-color: var(--primary);">
                 </div>
             </div>
 
